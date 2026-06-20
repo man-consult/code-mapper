@@ -351,6 +351,57 @@ export function App() {
         )}
         {error && <p className="error">{error}</p>}
 
+        <div className="annotate-panel">
+          <span className="muted">Annotate · OpenAI-compatible</span>
+          {backend ? (
+            <>
+              <input
+                className="search"
+                placeholder="base URL (e.g. http://localhost:11434/v1)"
+                value={annBaseUrl}
+                spellCheck={false}
+                onChange={(e) => setAnnBaseUrl(e.target.value)}
+              />
+              <input
+                className="search"
+                type="password"
+                placeholder="API key (blank for local)"
+                value={apiKey}
+                autoComplete="off"
+                spellCheck={false}
+                onChange={(e) => setApiKey(e.target.value)}
+              />
+              <input
+                className="search"
+                placeholder="model (required, e.g. qwen2.5-coder:7b)"
+                value={annModel}
+                spellCheck={false}
+                onChange={(e) => setAnnModel(e.target.value)}
+              />
+              {isLocalUrl(annBaseUrl) ? (
+                <p className="muted ann-note">
+                  Local endpoint — nothing leaves your machine. Needs the server running with the
+                  model pulled.
+                </p>
+              ) : (
+                <p className="ann-warning">
+                  ⚠️ Sends the full contents of every scanned file to{" "}
+                  <strong>{hostOf(annBaseUrl)}</strong>. Don’t annotate proprietary code you’re not
+                  cleared to share.
+                </p>
+              )}
+              <button className="annotate-btn" disabled={annotating} onClick={runAnnotate}>
+                {annotating ? "Annotating…" : isLocalUrl(annBaseUrl) ? "Annotate (local)" : "Annotate"}
+              </button>
+              {annMsg && <p className="muted ann-msg">{annMsg}</p>}
+            </>
+          ) : (
+            <p className="muted">
+              Run <code>codemap serve &lt;vault&gt;</code> to annotate from the browser.
+            </p>
+          )}
+        </div>
+
         <div className="mode-toggle">
           <button
             className={mode === "files" ? "on" : ""}
@@ -418,57 +469,6 @@ export function App() {
               />{" "}
               show {isolatedCount} isolated
             </label>
-          )}
-        </div>
-
-        <div className="annotate-panel">
-          <span className="muted">Annotate · OpenAI-compatible</span>
-          {backend ? (
-            <>
-              <input
-                className="search"
-                placeholder="base URL (e.g. http://localhost:11434/v1)"
-                value={annBaseUrl}
-                spellCheck={false}
-                onChange={(e) => setAnnBaseUrl(e.target.value)}
-              />
-              <input
-                className="search"
-                type="password"
-                placeholder="API key (blank for local)"
-                value={apiKey}
-                autoComplete="off"
-                spellCheck={false}
-                onChange={(e) => setApiKey(e.target.value)}
-              />
-              <input
-                className="search"
-                placeholder="model (required, e.g. qwen2.5-coder:7b)"
-                value={annModel}
-                spellCheck={false}
-                onChange={(e) => setAnnModel(e.target.value)}
-              />
-              {isLocalUrl(annBaseUrl) ? (
-                <p className="muted ann-note">
-                  Local endpoint — nothing leaves your machine. Needs the server running with the
-                  model pulled.
-                </p>
-              ) : (
-                <p className="ann-warning">
-                  ⚠️ Sends the full contents of every scanned file to{" "}
-                  <strong>{hostOf(annBaseUrl)}</strong>. Don’t annotate proprietary code you’re not
-                  cleared to share.
-                </p>
-              )}
-              <button className="annotate-btn" disabled={annotating} onClick={runAnnotate}>
-                {annotating ? "Annotating…" : isLocalUrl(annBaseUrl) ? "Annotate (local)" : "Annotate"}
-              </button>
-              {annMsg && <p className="muted ann-msg">{annMsg}</p>}
-            </>
-          ) : (
-            <p className="muted">
-              Run <code>codemap serve &lt;vault&gt;</code> to annotate from the browser.
-            </p>
           )}
         </div>
 
