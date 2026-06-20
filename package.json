@@ -22,5 +22,8 @@
     "build:web": "vite build packages/web",
     "build:pkg": "bun scripts/build-pkg.ts",
     "smoke": "bun packages/cli/src/index.ts scan packages/core/src -o .codemap"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.3.14"
   }
 }
