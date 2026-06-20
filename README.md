@@ -123,7 +123,7 @@ machine, use `-m devstral` (24B). For 8 GB, `-m qwen2.5-coder:3b`.
 ## Development
 
 ```bash
-git clone <repo-url> && cd code-mapper
+git clone <https://github.com/man-consult/code-mapper.git> && cd code-mapper
 bun install
 bun run codemap serve          # runs from source; rebuilds the UI on first run
 ```
