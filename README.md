@@ -28,7 +28,7 @@ It's experimental because it was built to be useful to me first, not to be a fin
 No clone needed:
 
 ```bash
-bunx code-mapper serve        # opens http://localhost:4321
+bunx codeflowmap serve        # opens http://localhost:4321
 ```
 
 Then, in the browser: **Browse** to a repo → **Scan** → explore. Optionally paste a Mistral API
@@ -60,7 +60,7 @@ Python currently contributes import edges + symbols; function-level call edges a
 
 ## Usage
 
-Everything runs from the browser. The only command is launching the UI (`bunx code-mapper serve`,
+Everything runs from the browser. The only command is launching the UI (`bunx codeflowmap serve`,
 or `bun run codemap serve` from a source checkout). Then, in the browser:
 
 1. **Scan** — click **Browse…** to pick a folder (or type/paste a path; `~` works), then **Scan**.

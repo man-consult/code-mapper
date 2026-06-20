@@ -46,12 +46,12 @@ fs.writeFileSync(
   path.join(pkg, "package.json"),
   `${JSON.stringify(
     {
-      name: "code-mapper",
+      name: "codeflowmap",
       version: VERSION,
       description:
         "Map a codebase's dependencies and data flows into an Obsidian-linkable vault and an interactive web UI.",
       type: "module",
-      bin: { "code-mapper": "bin/code-mapper.js", codemap: "bin/code-mapper.js" },
+      bin: { codeflowmap: "bin/code-mapper.js", codemap: "bin/code-mapper.js" },
       files: ["bin", "web", "README.md", "LICENSE"],
       engines: { bun: ">=1.0.0" },
       dependencies: {
@@ -83,6 +83,6 @@ fs.writeFileSync(
   )}\n`,
 );
 
-console.log(`\n✓ Built ${path.relative(root, pkg)}/  (code-mapper@${VERSION})`);
+console.log(`\n✓ Built ${path.relative(root, pkg)}/  (codeflowmap@${VERSION})`);
 console.log("  Test:    cd pkg && bun pm pack");
-console.log("  Publish: cd pkg && npm publish   (requires Bun at runtime: bunx code-mapper)");
+console.log("  Publish: cd pkg && npm publish   (requires Bun at runtime: bunx codeflowmap)");
