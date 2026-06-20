@@ -90,6 +90,40 @@ body {
   gap: 4px;
   font-size: 13px;
 }
+.search-results {
+  list-style: none;
+  margin: 6px 0 0;
+  padding: 0;
+  max-height: 240px;
+  overflow-y: auto;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+.search-results li { border-bottom: 1px solid var(--border); }
+.search-results li:last-child { border-bottom: none; }
+.search-results button {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  padding: 6px 10px;
+  cursor: pointer;
+}
+.search-results button:hover { background: var(--bg); }
+.sr-primary { color: var(--text); font-size: 13px; }
+.sr-secondary {
+  color: var(--muted);
+  font-size: 11px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  direction: rtl;
+  text-align: left;
+}
+
 .flow-filters label { cursor: pointer; }
 .match-count { color: var(--match); }
 .isolated-toggle { margin-top: 6px; color: var(--muted); }

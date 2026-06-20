@@ -98,6 +98,20 @@ export function App() {
     return set;
   }, [active, query, flows]);
 
+  // Search results to click → focus (works even when the full graph is too big).
+  const searchResults = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (!q || !active) return [];
+    const out: string[] = [];
+    for (const n of active.nodes) {
+      if (n.id.toLowerCase().includes(q)) {
+        out.push(n.id);
+        if (out.length >= 40) break;
+      }
+    }
+    return out;
+  }, [active, query]);
+
   // Files with no import/call edges — d3 flings these into a useless outer ring,
   // so they're hidden by default.
   const isolatedCount = useMemo(() => {
@@ -360,6 +374,30 @@ export function App() {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
         />
+
+        {searchResults.length > 0 && (
+          <ul className="search-results">
+            {searchResults.map((id) => {
+              const hash = id.indexOf("#");
+              const primary = hash >= 0 ? id.slice(hash + 1) : (id.split("/").pop() ?? id);
+              const secondary = hash >= 0 ? id.slice(0, hash) : id.slice(0, id.lastIndexOf("/"));
+              return (
+                <li key={id}>
+                  <button
+                    title={id}
+                    onClick={() => {
+                      setSelected(id);
+                      setQuery("");
+                    }}
+                  >
+                    <span className="sr-primary">{primary}</span>
+                    {secondary && <span className="sr-secondary">{secondary}</span>}
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+        )}
 
         <div className="flow-filters">
           <span className="muted">

@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import cytoscape, { type Core, type ElementDefinition, type Stylesheet } from "cytoscape";
 import fcose from "cytoscape-fcose";
 import type { CodeGraph } from "./types.ts";
@@ -158,6 +158,9 @@ export function Graph(props: GraphProps) {
   const synthetic = useRef<string[]>([]);
   const applyViewRef = useRef<() => void>(() => {});
   const prevSel = useRef<string | null>(null);
+  // Too many nodes to render the full graph — focus is built on demand instead.
+  const tooBigRef = useRef(false);
+  const [tooBig, setTooBig] = useState(false);
 
   // --- init cytoscape once ---
   useEffect(() => {
@@ -206,9 +209,17 @@ export function Graph(props: GraphProps) {
       }
       nodeList = graph.nodes.filter((n) => connected.has(n.id));
     }
-    if (nodeList.length > MAX_RENDER_NODES) {
+    synthetic.current = [];
+    expanded.current = new Set();
+    const big = nodeList.length > MAX_RENDER_NODES;
+    tooBigRef.current = big;
+    setTooBig(big);
+
+    if (big) {
+      // Don't render the hairball — focus builds the neighbourhood on demand.
       cy.elements().remove();
       fullPos.current = new Map();
+      applyView();
       return;
     }
 
@@ -222,8 +233,6 @@ export function Graph(props: GraphProps) {
       els.push({ data: { id: `e${i++}`, source: e.from, target: e.to } });
     }
 
-    synthetic.current = [];
-    expanded.current = new Set();
     cy.elements().remove();
     cy.add(els);
 
@@ -315,9 +324,94 @@ export function Graph(props: GraphProps) {
     }
   }
 
+  /**
+   * Build just the selected node's neighbourhood from scratch — used when the
+   * full graph is too big to render. Works against an empty canvas.
+   */
+  function renderSyntheticFocus() {
+    const cy = cyRef.current!;
+    const { selected, downstream, upstream, graph } = stateRef.current;
+    if (!selected) {
+      cy.elements().remove();
+      return;
+    }
+    const nbr = neighborhoodIds();
+    const upMembers = [...upstream].filter((id) => nbr.has(id) && id !== selected);
+    const downMembers = [...downstream].filter((id) => nbr.has(id) && id !== selected);
+
+    const langOf = new Map(graph.nodes.map((n) => [n.id, n.language] as const));
+    const colorOf = (id: string) => LANG_COLOR[langOf.get(id) ?? ""] ?? "#5a6b8c";
+    const visible = new Set<string>([selected]);
+    const els: ElementDefinition[] = [
+      { data: { id: selected, label: shortLabel(selected), color: colorOf(selected) }, classes: "sel" },
+    ];
+
+    const buildSideEls = (members: string[], side: "up" | "down") => {
+      const addReal = (id: string) => {
+        els.push({ data: { id, label: shortLabel(id), color: colorOf(id) }, classes: side });
+        visible.add(id);
+      };
+      if (members.length <= GROUP_THRESHOLD) {
+        members.forEach(addReal);
+        return;
+      }
+      const byDir = new Map<string, string[]>();
+      for (const id of members) {
+        const d = dirOf(id);
+        (byDir.get(d) ?? byDir.set(d, []).get(d)!).push(id);
+      }
+      for (const [dir, ids] of byDir) {
+        const key = `${side}:${dir}`;
+        if (expanded.current.has(key)) {
+          ids.forEach(addReal);
+          continue;
+        }
+        const gid = `grp:${key}`;
+        const last = dir.split("/").pop() || dir;
+        els.push({
+          data: { id: gid, label: `${last}/ (${ids.length})`, grp: true, key },
+          classes: `grp ${side}`,
+        });
+        els.push({
+          data: {
+            id: `grpe:${key}`,
+            source: side === "up" ? gid : selected,
+            target: side === "up" ? selected : gid,
+          },
+          classes: "on",
+        });
+        visible.add(gid);
+      }
+    };
+    buildSideEls(upMembers, "up");
+    buildSideEls(downMembers, "down");
+
+    let ei = 0;
+    for (const e of graph.edges) {
+      if (e.from !== e.to && visible.has(e.from) && visible.has(e.to)) {
+        els.push({ data: { id: `fe${ei++}`, source: e.from, target: e.to }, classes: "on" });
+      }
+    }
+
+    cy.elements().remove();
+    cy.add(els);
+    cy.getElementById(selected).position({ x: 0, y: 0 });
+    placeSide(cy.nodes(".up"), -1);
+    placeSide(cy.nodes(".down"), 1);
+    cy.fit(cy.elements(), 60);
+  }
+
   function applyView() {
     const cy = cyRef.current;
     if (!cy) return;
+
+    // Too-big graph: the full set is never loaded; build focus on demand.
+    if (tooBigRef.current) {
+      if (stateRef.current.selected) renderSyntheticFocus();
+      else cy.elements().remove();
+      return;
+    }
+
     cleanupSynthetic();
     if (cy.nodes().length === 0) return;
     const { selected, downstream, upstream, matched } = stateRef.current;
@@ -362,16 +456,15 @@ export function Graph(props: GraphProps) {
   }
   applyViewRef.current = applyView;
 
-  const tooBig = graph.nodes.length > MAX_RENDER_NODES;
-
   return (
     <div className="graph-wrap">
       <div ref={containerRef} className="graph-canvas" />
       {tooBig && !selected && (
         <div className="graph-overlay">
-          <p>This graph has {graph.nodes.length.toLocaleString()} nodes — too many to render smoothly.</p>
+          <p>This graph has {graph.nodes.length.toLocaleString()} nodes — too many to render the full map.</p>
           <p className="muted">
-            Scan a subdirectory, or pick a node from search to focus its neighbourhood.
+            Search a {graph.nodes[0]?.id.includes("#") ? "function" : "file"} above and click a
+            result to focus its neighbourhood, or scan a subdirectory.
           </p>
         </div>
       )}
