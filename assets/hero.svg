@@ -1,0 +1,71 @@
+<svg width="1100" height="420" viewBox="0 0 1100 420" xmlns="http://www.w3.org/2000/svg" font-family="ui-sans-serif, -apple-system, Segoe UI, Roboto, sans-serif">
+  <rect x="0.5" y="0.5" width="1099" height="419" rx="14" fill="#0d1016" stroke="#20262f"/>
+
+  <!-- column captions -->
+  <text x="190" y="40" text-anchor="middle" fill="#e0823d" font-size="12" letter-spacing="1.5">CALLERS</text>
+  <text x="550" y="40" text-anchor="middle" fill="#e6a817" font-size="12" letter-spacing="1.5">FOCUSED FILE</text>
+  <text x="910" y="40" text-anchor="middle" fill="#4cc38a" font-size="12" letter-spacing="1.5">DEPENDENCIES</text>
+
+  <!-- edges: callers -> file -->
+  <g stroke="#e6a817" stroke-width="1.6" opacity="0.5">
+    <line x1="190" y1="90"  x2="550" y2="210"/>
+    <line x1="190" y1="150" x2="550" y2="210"/>
+    <line x1="190" y1="210" x2="550" y2="210"/>
+    <line x1="190" y1="270" x2="550" y2="210"/>
+    <line x1="190" y1="330" x2="550" y2="210"/>
+    <!-- file -> deps -->
+    <line x1="550" y1="210" x2="910" y2="110"/>
+    <line x1="550" y1="210" x2="910" y2="180"/>
+    <line x1="550" y1="210" x2="910" y2="250"/>
+    <line x1="550" y1="210" x2="910" y2="320"/>
+  </g>
+
+  <!-- caller nodes (upstream / orange) -->
+  <g fill="#e0823d" stroke="#0d1016" stroke-width="1.5">
+    <circle cx="190" cy="90"  r="9"/>
+    <circle cx="190" cy="150" r="9"/>
+    <circle cx="190" cy="210" r="9"/>
+    <circle cx="190" cy="270" r="9"/>
+    <circle cx="190" cy="330" r="9"/>
+  </g>
+  <g fill="#c7cdd6" font-size="13" text-anchor="end">
+    <text x="172" y="94">cron.routes.ts</text>
+    <text x="172" y="154">jobs.routes.ts</text>
+    <text x="172" y="214">portal-verification.ts</text>
+    <text x="172" y="274">supplier-verification.ts</text>
+    <text x="172" y="334">document-verification.ts</text>
+  </g>
+
+  <!-- dependency nodes (downstream / green) -->
+  <g fill="#4cc38a" stroke="#0d1016" stroke-width="1.5">
+    <circle cx="910" cy="110" r="9"/>
+    <circle cx="910" cy="180" r="9"/>
+    <circle cx="910" cy="250" r="9"/>
+    <circle cx="910" cy="320" r="9"/>
+  </g>
+  <g fill="#c7cdd6" font-size="13" text-anchor="start">
+    <text x="928" y="114">mongodb.service.ts</text>
+    <text x="928" y="184">certification-expiry.utils.ts</text>
+    <text x="928" y="254">db.ts</text>
+    <text x="928" y="324">logger.ts</text>
+  </g>
+
+  <!-- focused file (selected / accent) -->
+  <circle cx="550" cy="210" r="22" fill="#e6a817" stroke="#0d1016" stroke-width="2"/>
+  <text x="550" y="262" text-anchor="middle" fill="#ffffff" font-size="14" font-weight="600">verification-summary.service.ts</text>
+
+  <!-- data-flow chips -->
+  <g font-size="12">
+    <rect x="430" y="278" width="74" height="22" rx="11" fill="#2a2018" stroke="#e0823d"/>
+    <text x="467" y="293" text-anchor="middle" fill="#e6a817">writes</text>
+    <rect x="512" y="278" width="68" height="22" rx="11" fill="#16241d" stroke="#4cc38a"/>
+    <text x="546" y="293" text-anchor="middle" fill="#4cc38a">reads</text>
+    <rect x="588" y="278" width="64" height="22" rx="11" fill="#1a2330" stroke="#6ea8fe"/>
+    <text x="620" y="293" text-anchor="middle" fill="#6ea8fe">auth</text>
+  </g>
+
+  <!-- footnote -->
+  <text x="550" y="392" text-anchor="middle" fill="#6b7280" font-size="12">
+    Click any file or function — callers on the left, dependencies on the right, data flows annotated.
+  </text>
+</svg>
