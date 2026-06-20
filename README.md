@@ -30,7 +30,9 @@ bunx codeflowmap serve        # → http://localhost:4321 · no install, no clon
 
 ## Why this exists
 
-I wanted to get better at reading code I didn't write. Two kinds, really. The first: understanding the code an LLM wrote for me. Generating it is the fast part. Getting across what it actually did (what it touched, what it reads and writes, whether the auth path is where I think it is) was the gap I needed to fix. This tool is my way of improving the verification step. Generate, then graph it and see what's really there.
+I wanted to get better at reading code I didn't write.
+
+Firstly: understanding the code an LLM wrote for me. I pretty soon discovered that bashing out a few prompts and getting an LLM to compile some code isn't enough. Getting across what it actually did (what it touched, what it reads and writes, whether the auth path is where I think it is) was the gap I needed to fix. This tool is my way of improving the verification step. Generate, then graph it and see what's really there.
 
 The second is dropping into an unfamiliar repo and tracing how it stitches together, what calls what, where data gets written, which paths run through auth. Slow work, and easy to get wrong when it's not your local playground. This part is all about learning good patterns from people who know what they're doing.
 
