@@ -10,7 +10,7 @@ const program = new Command();
 program
   .name("codemap")
   .description("Map your codebase's dependencies and data flows into an Obsidian-linkable vault")
-  .version("0.1.0");
+  .version("0.1.1");
 
 program
   .command("scan")

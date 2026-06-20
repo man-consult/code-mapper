@@ -13,7 +13,7 @@ import path from "node:path";
 
 const root = path.resolve(import.meta.dir, "..");
 const pkg = path.join(root, "pkg");
-const VERSION = "0.1.0";
+const VERSION = "0.1.1";
 
 // Externalised: imported at runtime, kept out of the bundle (declared as deps).
 // tree-sitter-python is resolved via require.resolve for its .wasm, so it is a
