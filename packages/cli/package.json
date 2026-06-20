@@ -1,0 +1,13 @@
+{
+  "name": "@codemap/cli",
+  "version": "0.1.0",
+  "type": "module",
+  "bin": {
+    "codemap": "src/index.ts"
+  },
+  "dependencies": {
+    "@codemap/core": "workspace:*",
+    "@codemap/annotate": "workspace:*",
+    "commander": "^15.0.0"
+  }
+}

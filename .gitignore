@@ -1,0 +1,11 @@
+node_modules/
+.codemap/
+.demo/
+dist/
+pkg/
+*.tgz
+*.log
+.DS_Store
+.env
+.claude/
+.pv/

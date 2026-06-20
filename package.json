@@ -1,0 +1,26 @@
+{
+  "name": "code-mapper-monorepo",
+  "private": true,
+  "type": "module",
+  "description": "Map a codebase's dependencies and data flows into an Obsidian-linkable vault and an interactive web UI.",
+  "license": "MIT",
+  "author": "Brian Mangano <brian@mangano.co.nz>",
+  "keywords": [
+    "code",
+    "dependency-graph",
+    "call-graph",
+    "data-flow",
+    "visualization",
+    "obsidian",
+    "static-analysis",
+    "typescript",
+    "python"
+  ],
+  "workspaces": ["packages/*"],
+  "scripts": {
+    "codemap": "bun packages/cli/src/index.ts",
+    "build:web": "vite build packages/web",
+    "build:pkg": "bun scripts/build-pkg.ts",
+    "smoke": "bun packages/cli/src/index.ts scan packages/core/src -o .codemap"
+  }
+}

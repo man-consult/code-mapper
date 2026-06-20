@@ -1,0 +1,1273 @@
+{
+  "root": "/Volumes/DeveloperDrive/Developer/code-mapper/packages",
+  "nodes": [
+    {
+      "id": "annotate/src/annotate.ts",
+      "path": "annotate/src/annotate.ts",
+      "language": "typescript",
+      "symbols": [
+        {
+          "name": "annotateGraph",
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "AnnotateResult",
+          "kind": "InterfaceDeclaration"
+        },
+        {
+          "name": "AnnotateOptions",
+          "kind": "InterfaceDeclaration"
+        }
+      ],
+      "annotation": {
+        "summary": "This TypeScript file defines the `annotateGraph` function, which loads an existing vault's graph.json, annotates every node with the LLM semantic layer using a cache, and then rewrites both graph.json and the Markdown vault with the enriched data.",
+        "writes": [
+          "graph.json",
+          ".cache"
+        ],
+        "reads": [
+          "graph.json"
+        ],
+        "auth": [],
+        "flows": [
+          "Reads graph.json to get the current state of the code graph.",
+          "Writes annotated nodes back to graph.json.",
+          "Writes cache data to .cache directory."
+        ]
+      }
+    },
+    {
+      "id": "annotate/src/cache.ts",
+      "path": "annotate/src/cache.ts",
+      "language": "typescript",
+      "symbols": [
+        {
+          "name": "AnnotationCache",
+          "kind": "ClassDeclaration"
+        }
+      ],
+      "annotation": {
+        "summary": "This TypeScript file defines an `AnnotationCache` class to store and retrieve annotations on disk, using a SHA256 hash of the model and source as the key.",
+        "writes": [
+          "annotations.json"
+        ],
+        "reads": [
+          "annotations.json"
+        ],
+        "auth": [],
+        "flows": [
+          "Reads existing cache from 'annotations.json' upon initialization.",
+          "Writes updated cache to 'annotations.json' when `save` method is called."
+        ]
+      }
+    },
+    {
+      "id": "annotate/src/config.ts",
+      "path": "annotate/src/config.ts",
+      "language": "typescript",
+      "symbols": [
+        {
+          "name": "createAnnotator",
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "ProviderName",
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "AnnotatorOptions",
+          "kind": "InterfaceDeclaration"
+        }
+      ],
+      "annotation": {
+        "summary": "This TypeScript file defines configuration and creation logic for an annotator, which can use different providers like Mistral, Ollama, or OpenAI. It resolves options from explicit inputs, environment variables, and defaults, and creates instances of `OpenAICompatAnnotator` based on the selected provider.",
+        "writes": [],
+        "reads": [
+          "process.env.CODEMAP_PROVIDER",
+          "process.env.CODEMAP_MODEL",
+          "process.env.CODEMAP_BASE_URL",
+          "process.env.CODEMAP_API_KEY",
+          "process.env.MISTRAL_API_KEY",
+          "process.env.OPENAI_API_KEY"
+        ],
+        "auth": [
+          "requireKey function enforces the presence of API keys for certain providers."
+        ],
+        "flows": [
+          "Options are resolved from explicit inputs, then environment variables, then defaults.",
+          "API keys are read from environment variables and validated by requireKey function.",
+          "An instance of OpenAICompatAnnotator is created based on the selected provider."
+        ]
+      }
+    },
+    {
+      "id": "annotate/src/index.ts",
+      "path": "annotate/src/index.ts",
+      "language": "typescript",
+      "symbols": [
+        {
+          "name": "createAnnotator",
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "AnnotatorOptions",
+          "kind": "InterfaceDeclaration"
+        },
+        {
+          "name": "ProviderName",
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "annotateGraph",
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "AnnotateOptions",
+          "kind": "InterfaceDeclaration"
+        },
+        {
+          "name": "AnnotateResult",
+          "kind": "InterfaceDeclaration"
+        },
+        {
+          "name": "AnnotationCache",
+          "kind": "ClassDeclaration"
+        },
+        {
+          "name": "Annotator",
+          "kind": "InterfaceDeclaration"
+        },
+        {
+          "name": "AnnotateInput",
+          "kind": "InterfaceDeclaration"
+        }
+      ],
+      "annotation": {
+        "summary": "This file exports functions and types related to graph annotation, including configuration options, annotation logic, and caching mechanisms.",
+        "writes": [],
+        "reads": [
+          "./config.ts",
+          "./annotate.ts",
+          "./cache.ts",
+          "./types.ts"
+        ],
+        "auth": [],
+        "flows": [
+          "Configuration options are read from ./config.ts.",
+          "Annotation logic is read from ./annotate.ts.",
+          "Caching mechanisms are read from ./cache.ts.",
+          "Types are read from ./types.ts."
+        ]
+      }
+    },
+    {
+      "id": "annotate/src/prompt.ts",
+      "path": "annotate/src/prompt.ts",
+      "language": "typescript",
+      "symbols": [
+        {
+          "name": "buildUserPrompt",
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "SYSTEM_PROMPT",
+          "kind": "VariableDeclaration"
+        }
+      ],
+      "annotation": {
+        "summary": "This file defines a function to build a user prompt for a static analysis assistant, which includes the source code and relevant metadata.",
+        "writes": [],
+        "reads": [
+          "input.source",
+          "input.id",
+          "input.language",
+          "input.dependencies"
+        ],
+        "auth": [],
+        "flows": [
+          "Input data is processed to create a formatted string that includes file details and source code."
+        ]
+      }
+    },
+    {
+      "id": "annotate/src/providers/openai-compat.ts",
+      "path": "annotate/src/providers/openai-compat.ts",
+      "language": "typescript",
+      "symbols": [
+        {
+          "name": "parseAnnotation",
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "OpenAICompatConfig",
+          "kind": "InterfaceDeclaration"
+        },
+        {
+          "name": "OpenAICompatAnnotator",
+          "kind": "ClassDeclaration"
+        }
+      ],
+      "annotation": {
+        "summary": "This TypeScript file provides an implementation of the `Annotator` interface to interact with OpenAI-compatible chat endpoints using the Fetch API.",
+        "writes": [],
+        "reads": [
+          "@codemap/core",
+          "../types.ts",
+          "../prompt.ts"
+        ],
+        "auth": [
+          "Authorization header with Bearer token if provided in config"
+        ],
+        "flows": [
+          "Config -> OpenAICompatAnnotator constructor",
+          "Input -> buildUserPrompt -> body -> fetch request -> response -> parseAnnotation -> Annotation"
+        ]
+      }
+    },
+    {
+      "id": "annotate/src/types.ts",
+      "path": "annotate/src/types.ts",
+      "language": "typescript",
+      "symbols": [
+        {
+          "name": "AnnotationSchema",
+          "kind": "VariableDeclaration"
+        },
+        {
+          "name": "AnnotateInput",
+          "kind": "InterfaceDeclaration"
+        },
+        {
+          "name": "Annotator",
+          "kind": "InterfaceDeclaration"
+        }
+      ],
+      "annotation": {
+        "summary": "This TypeScript file defines schemas and interfaces for validating annotation data and processing input to generate annotations.",
+        "writes": [],
+        "reads": [
+          "zod",
+          "@codemap/core"
+        ],
+        "auth": [],
+        "flows": [
+          "Input is validated against AnnotationSchema.",
+          "Annotator processes AnnotateInput to produce an Annotation."
+        ]
+      }
+    },
+    {
+      "id": "cli/src/index.ts",
+      "path": "cli/src/index.ts",
+      "language": "typescript",
+      "symbols": [],
+      "annotation": {
+        "summary": "This TypeScript file is the entry point for a CLI tool named 'codemap' that scans code repositories and generates dependency graphs and Markdown vaults, or annotates existing vaults with semantic layers.",
+        "writes": [
+          ".codemap/vault.json",
+          ".codemap/graph.json"
+        ],
+        "reads": [
+          "<dir>/files"
+        ],
+        "auth": [],
+        "flows": [
+          "Scans a directory and generates the dependency graph + Markdown vault.",
+          "Adds the LLM semantic layer to an existing vault."
+        ]
+      }
+    },
+    {
+      "id": "core/src/graph/types.ts",
+      "path": "core/src/graph/types.ts",
+      "language": "typescript",
+      "symbols": [
+        {
+          "name": "Language",
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "EdgeKind",
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "SymbolInfo",
+          "kind": "InterfaceDeclaration"
+        },
+        {
+          "name": "Annotation",
+          "kind": "InterfaceDeclaration"
+        },
+        {
+          "name": "GraphNode",
+          "kind": "InterfaceDeclaration"
+        },
+        {
+          "name": "GraphEdge",
+          "kind": "InterfaceDeclaration"
+        },
+        {
+          "name": "CallEdge",
+          "kind": "InterfaceDeclaration"
+        },
+        {
+          "name": "CodeGraph",
+          "kind": "InterfaceDeclaration"
+        }
+      ],
+      "annotation": {
+        "summary": "Defines types and interfaces for representing a code graph, including nodes (files), edges (dependencies), and call edges (function calls).",
+        "writes": [],
+        "reads": [],
+        "auth": [],
+        "flows": []
+      }
+    },
+    {
+      "id": "core/src/index.ts",
+      "path": "core/src/index.ts",
+      "language": "typescript",
+      "symbols": [
+        {
+          "name": "scanRepo",
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "ScanOptions",
+          "kind": "InterfaceDeclaration"
+        },
+        {
+          "name": "writeVault",
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "VaultResult",
+          "kind": "InterfaceDeclaration"
+        },
+        {
+          "name": "assertInside",
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "toId",
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "Language",
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "EdgeKind",
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "SymbolInfo",
+          "kind": "InterfaceDeclaration"
+        },
+        {
+          "name": "Annotation",
+          "kind": "InterfaceDeclaration"
+        },
+        {
+          "name": "GraphNode",
+          "kind": "InterfaceDeclaration"
+        },
+        {
+          "name": "GraphEdge",
+          "kind": "InterfaceDeclaration"
+        },
+        {
+          "name": "CallEdge",
+          "kind": "InterfaceDeclaration"
+        },
+        {
+          "name": "CodeGraph",
+          "kind": "InterfaceDeclaration"
+        }
+      ],
+      "annotation": {
+        "summary": "This file exports various functions and types related to repository scanning, vault management, and path utilities.",
+        "writes": [
+          "VaultResult"
+        ],
+        "reads": [
+          "ScanOptions",
+          "paths"
+        ],
+        "auth": [],
+        "flows": [
+          "scanRepo reads ScanOptions and writes VaultResult",
+          "writeVault writes VaultResult",
+          "assertInside and toId read paths"
+        ]
+      }
+    },
+    {
+      "id": "core/src/langs/python.ts",
+      "path": "core/src/langs/python.ts",
+      "language": "typescript",
+      "symbols": [
+        {
+          "name": "createPythonExtractor",
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "PythonExtractor",
+          "kind": "InterfaceDeclaration"
+        }
+      ],
+      "annotation": {
+        "summary": "This TypeScript file provides a Python language extractor using Tree-sitter, which parses Python code to extract symbols and import relationships.",
+        "writes": [],
+        "reads": [
+          "web-tree-sitter/web-tree-sitter.wasm",
+          "tree-sitter-python/tree-sitter-python.wasm"
+        ],
+        "auth": [],
+        "flows": [
+          "Reads Python source code content",
+          "Parses the source code using Tree-sitter",
+          "Extracts symbols and import relationships",
+          "Writes extracted symbols and edges to return object"
+        ]
+      }
+    },
+    {
+      "id": "core/src/langs/ts-js.ts",
+      "path": "core/src/langs/ts-js.ts",
+      "language": "typescript",
+      "symbols": [
+        {
+          "name": "extractTsJs",
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "TsJsResult",
+          "kind": "InterfaceDeclaration"
+        }
+      ],
+      "annotation": {
+        "summary": "This TypeScript file extracts graph nodes and edges from TypeScript and JavaScript files using the TypeScript Compiler API, focusing on project-level module resolution and function-level call edges.",
+        "writes": [],
+        "reads": [
+          "tsconfig.json",
+          "file system"
+        ],
+        "auth": [],
+        "flows": [
+          "Reads tsconfig.json to configure the TypeScript project.",
+          "Reads file system for source files specified in the input array.",
+          "Writes graph nodes and edges to the output object."
+        ]
+      }
+    },
+    {
+      "id": "core/src/scan.ts",
+      "path": "core/src/scan.ts",
+      "language": "typescript",
+      "symbols": [
+        {
+          "name": "scanRepo",
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "ScanOptions",
+          "kind": "InterfaceDeclaration"
+        }
+      ],
+      "annotation": {
+        "summary": "This TypeScript file scans a directory for source files, identifies TypeScript and Python files, extracts code graph nodes and edges from them, and returns a complete code graph.",
+        "writes": [
+          "CodeGraph"
+        ],
+        "reads": [
+          "file system",
+          "node:fs",
+          "node:path"
+        ],
+        "auth": [],
+        "flows": [
+          "Reads directory structure and file contents",
+          "Identifies TypeScript and Python files",
+          "Extracts nodes, edges, and calls from identified files",
+          "Sorts extracted data",
+          "Writes the complete code graph"
+        ]
+      }
+    },
+    {
+      "id": "core/src/util/paths.ts",
+      "path": "core/src/util/paths.ts",
+      "language": "typescript",
+      "symbols": [
+        {
+          "name": "assertInside",
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "toId",
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "assertSafeOutputDir",
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "annotation": {
+        "summary": "This TypeScript module provides utility functions to ensure safe and secure file path handling, including asserting paths are within a specified root directory and verifying output directories are not restricted.",
+        "writes": [],
+        "reads": [
+          "process.env.HOME"
+        ],
+        "auth": [],
+        "flows": [
+          "assertInside: resolves paths and checks for directory traversal",
+          "toId: converts file path to a stable node ID relative to the root",
+          "assertSafeOutputDir: resolves output directory and checks against restricted directories"
+        ]
+      }
+    },
+    {
+      "id": "core/src/vault/markdown.ts",
+      "path": "core/src/vault/markdown.ts",
+      "language": "typescript",
+      "symbols": [
+        {
+          "name": "writeVault",
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "VaultResult",
+          "kind": "InterfaceDeclaration"
+        }
+      ],
+      "annotation": {
+        "summary": "This TypeScript file generates an Obsidian-linkable Markdown vault from a code graph, rendering each node as a note with dependencies and call edges.",
+        "writes": [
+          "graph.json",
+          "Markdown files in the output directory"
+        ],
+        "reads": [
+          "CodeGraph object passed to writeVault function"
+        ],
+        "auth": [],
+        "flows": [
+          "Reads code graph data",
+          "Writes Markdown files with dependencies and call edges",
+          "Writes graph.json for web UI"
+        ]
+      }
+    },
+    {
+      "id": "web/src/App.tsx",
+      "path": "web/src/App.tsx",
+      "language": "typescript",
+      "symbols": [
+        {
+          "name": "App",
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "annotation": {
+        "summary": "This file is the main React component for a code visualization tool, allowing users to load and interact with call graphs of codebases.",
+        "writes": [
+          "state",
+          "error messages"
+        ],
+        "reads": [
+          "graph data from JSON files"
+        ],
+        "auth": [],
+        "flows": [
+          "fetches graph data on app load",
+          "updates state based on user interactions"
+        ]
+      }
+    },
+    {
+      "id": "web/src/callgraph.ts",
+      "path": "web/src/callgraph.ts",
+      "language": "typescript",
+      "symbols": [
+        {
+          "name": "buildCallGraph",
+          "kind": "FunctionDeclaration"
+        }
+      ],
+      "annotation": {
+        "summary": "This TypeScript file defines a function to build a call graph from a file graph, where nodes represent symbols and edges represent calls between them.",
+        "writes": [],
+        "reads": [
+          "web/src/types.ts"
+        ],
+        "auth": [],
+        "flows": [
+          "Reads the input CodeGraph object",
+          "Creates new GraphNode objects for each symbol if they don't exist",
+          "Maps call edges from the input graph to the new nodes",
+          "Returns a new CodeGraph object with the updated nodes and edges"
+        ]
+      }
+    },
+    {
+      "id": "web/src/Graph.tsx",
+      "path": "web/src/Graph.tsx",
+      "language": "typescript",
+      "symbols": [
+        {
+          "name": "Graph",
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "GraphProps",
+          "kind": "InterfaceDeclaration"
+        }
+      ],
+      "annotation": {
+        "summary": "This TypeScript file defines a React component to render a graph visualization of a codebase, using D3.js for the simulation and rendering.",
+        "writes": [
+          "state",
+          "ref"
+        ],
+        "reads": [
+          "props",
+          "graph",
+          "nodes",
+          "links"
+        ],
+        "auth": [],
+        "flows": [
+          "Props are read to initialize the component state and simulation.",
+          "State is updated based on user interactions (panning, zooming, selecting nodes).",
+          "Simulation data is computed from props and rendered in the SVG element."
+        ]
+      }
+    },
+    {
+      "id": "web/src/main.tsx",
+      "path": "web/src/main.tsx",
+      "language": "typescript",
+      "symbols": [],
+      "annotation": {
+        "summary": "This file is the entry point of a React application, rendering the App component within a StrictMode wrapper.",
+        "writes": [],
+        "reads": [
+          "document.getElementById('root')"
+        ],
+        "auth": [],
+        "flows": [
+          "React component rendered to DOM"
+        ]
+      }
+    },
+    {
+      "id": "web/src/paths.ts",
+      "path": "web/src/paths.ts",
+      "language": "typescript",
+      "symbols": [
+        {
+          "name": "buildAdjacency",
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "reachable",
+          "kind": "FunctionDeclaration"
+        },
+        {
+          "name": "Adjacency",
+          "kind": "InterfaceDeclaration"
+        }
+      ],
+      "annotation": {
+        "summary": "This TypeScript file defines functions to build an adjacency list representation of a graph and find all nodes reachable from a given start node.",
+        "writes": [],
+        "reads": [
+          "web/src/types.ts"
+        ],
+        "auth": [],
+        "flows": [
+          "CodeGraph -> Adjacency",
+          "Adjacency -> Set<string>"
+        ]
+      }
+    },
+    {
+      "id": "web/src/types.ts",
+      "path": "web/src/types.ts",
+      "language": "typescript",
+      "symbols": [
+        {
+          "name": "Annotation",
+          "kind": "InterfaceDeclaration"
+        },
+        {
+          "name": "GraphNode",
+          "kind": "InterfaceDeclaration"
+        },
+        {
+          "name": "GraphEdge",
+          "kind": "InterfaceDeclaration"
+        },
+        {
+          "name": "CallEdge",
+          "kind": "InterfaceDeclaration"
+        },
+        {
+          "name": "CodeGraph",
+          "kind": "InterfaceDeclaration"
+        },
+        {
+          "name": "FlowKey",
+          "kind": "TypeAliasDeclaration"
+        },
+        {
+          "name": "ViewMode",
+          "kind": "TypeAliasDeclaration"
+        }
+      ],
+      "annotation": {
+        "summary": "This TypeScript file defines interfaces and types used to represent a code graph, including nodes (representing files/functions), edges (representing dependencies between nodes), and call edges (specifically representing function calls). It also includes an interface for annotations that can be attached to nodes, which describe various properties of the node such as what it writes, reads, requires for authentication, and how data flows through it.",
+        "writes": [],
+        "reads": [],
+        "auth": [],
+        "flows": []
+      }
+    },
+    {
+      "id": "web/vite.config.ts",
+      "path": "web/vite.config.ts",
+      "language": "typescript",
+      "symbols": [
+        {
+          "name": "default",
+          "kind": "CallExpression"
+        }
+      ],
+      "annotation": {
+        "summary": "This file configures Vite, a build tool for modern web development, to use the React plugin and set up a server on port 5174.",
+        "writes": [],
+        "reads": [],
+        "auth": [],
+        "flows": []
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "annotate/src/annotate.ts",
+      "to": "annotate/src/cache.ts",
+      "kind": "import"
+    },
+    {
+      "from": "annotate/src/annotate.ts",
+      "to": "annotate/src/types.ts",
+      "kind": "import"
+    },
+    {
+      "from": "annotate/src/annotate.ts",
+      "to": "core/src/index.ts",
+      "kind": "import"
+    },
+    {
+      "from": "annotate/src/cache.ts",
+      "to": "core/src/index.ts",
+      "kind": "import"
+    },
+    {
+      "from": "annotate/src/config.ts",
+      "to": "annotate/src/providers/openai-compat.ts",
+      "kind": "import"
+    },
+    {
+      "from": "annotate/src/config.ts",
+      "to": "annotate/src/types.ts",
+      "kind": "import"
+    },
+    {
+      "from": "annotate/src/index.ts",
+      "to": "annotate/src/annotate.ts",
+      "kind": "import"
+    },
+    {
+      "from": "annotate/src/index.ts",
+      "to": "annotate/src/cache.ts",
+      "kind": "import"
+    },
+    {
+      "from": "annotate/src/index.ts",
+      "to": "annotate/src/config.ts",
+      "kind": "import"
+    },
+    {
+      "from": "annotate/src/index.ts",
+      "to": "annotate/src/types.ts",
+      "kind": "import"
+    },
+    {
+      "from": "annotate/src/prompt.ts",
+      "to": "annotate/src/types.ts",
+      "kind": "import"
+    },
+    {
+      "from": "annotate/src/providers/openai-compat.ts",
+      "to": "annotate/src/prompt.ts",
+      "kind": "import"
+    },
+    {
+      "from": "annotate/src/providers/openai-compat.ts",
+      "to": "annotate/src/types.ts",
+      "kind": "import"
+    },
+    {
+      "from": "annotate/src/providers/openai-compat.ts",
+      "to": "core/src/index.ts",
+      "kind": "import"
+    },
+    {
+      "from": "annotate/src/types.ts",
+      "to": "core/src/index.ts",
+      "kind": "import"
+    },
+    {
+      "from": "cli/src/index.ts",
+      "to": "annotate/src/index.ts",
+      "kind": "import"
+    },
+    {
+      "from": "cli/src/index.ts",
+      "to": "core/src/index.ts",
+      "kind": "import"
+    },
+    {
+      "from": "core/src/index.ts",
+      "to": "core/src/graph/types.ts",
+      "kind": "import"
+    },
+    {
+      "from": "core/src/index.ts",
+      "to": "core/src/scan.ts",
+      "kind": "import"
+    },
+    {
+      "from": "core/src/index.ts",
+      "to": "core/src/util/paths.ts",
+      "kind": "import"
+    },
+    {
+      "from": "core/src/index.ts",
+      "to": "core/src/vault/markdown.ts",
+      "kind": "import"
+    },
+    {
+      "from": "core/src/langs/python.ts",
+      "to": "core/src/graph/types.ts",
+      "kind": "import"
+    },
+    {
+      "from": "core/src/langs/ts-js.ts",
+      "to": "core/src/graph/types.ts",
+      "kind": "import"
+    },
+    {
+      "from": "core/src/langs/ts-js.ts",
+      "to": "core/src/util/paths.ts",
+      "kind": "import"
+    },
+    {
+      "from": "core/src/scan.ts",
+      "to": "core/src/graph/types.ts",
+      "kind": "import"
+    },
+    {
+      "from": "core/src/scan.ts",
+      "to": "core/src/langs/python.ts",
+      "kind": "import"
+    },
+    {
+      "from": "core/src/scan.ts",
+      "to": "core/src/langs/ts-js.ts",
+      "kind": "import"
+    },
+    {
+      "from": "core/src/scan.ts",
+      "to": "core/src/util/paths.ts",
+      "kind": "import"
+    },
+    {
+      "from": "core/src/vault/markdown.ts",
+      "to": "core/src/graph/types.ts",
+      "kind": "import"
+    },
+    {
+      "from": "core/src/vault/markdown.ts",
+      "to": "core/src/util/paths.ts",
+      "kind": "import"
+    },
+    {
+      "from": "web/src/App.tsx",
+      "to": "web/src/callgraph.ts",
+      "kind": "import"
+    },
+    {
+      "from": "web/src/App.tsx",
+      "to": "web/src/Graph.tsx",
+      "kind": "import"
+    },
+    {
+      "from": "web/src/App.tsx",
+      "to": "web/src/paths.ts",
+      "kind": "import"
+    },
+    {
+      "from": "web/src/App.tsx",
+      "to": "web/src/types.ts",
+      "kind": "import"
+    },
+    {
+      "from": "web/src/callgraph.ts",
+      "to": "web/src/types.ts",
+      "kind": "import"
+    },
+    {
+      "from": "web/src/Graph.tsx",
+      "to": "web/src/types.ts",
+      "kind": "import"
+    },
+    {
+      "from": "web/src/main.tsx",
+      "to": "web/src/App.tsx",
+      "kind": "import"
+    },
+    {
+      "from": "web/src/paths.ts",
+      "to": "web/src/types.ts",
+      "kind": "import"
+    }
+  ],
+  "calls": [
+    {
+      "from": "annotate/src/annotate.ts",
+      "fromSymbol": "annotateGraph",
+      "to": "annotate/src/annotate.ts",
+      "toSymbol": "worker"
+    },
+    {
+      "from": "annotate/src/annotate.ts",
+      "fromSymbol": "annotateGraph",
+      "to": "annotate/src/cache.ts",
+      "toSymbol": "save"
+    },
+    {
+      "from": "annotate/src/annotate.ts",
+      "fromSymbol": "annotateGraph",
+      "to": "core/src/vault/markdown.ts",
+      "toSymbol": "writeVault"
+    },
+    {
+      "from": "annotate/src/annotate.ts",
+      "fromSymbol": "worker",
+      "to": "annotate/src/annotate.ts",
+      "toSymbol": "onProgress"
+    },
+    {
+      "from": "annotate/src/annotate.ts",
+      "fromSymbol": "worker",
+      "to": "annotate/src/annotate.ts",
+      "toSymbol": "withRetry"
+    },
+    {
+      "from": "annotate/src/annotate.ts",
+      "fromSymbol": "worker",
+      "to": "annotate/src/cache.ts",
+      "toSymbol": "get"
+    },
+    {
+      "from": "annotate/src/annotate.ts",
+      "fromSymbol": "worker",
+      "to": "annotate/src/cache.ts",
+      "toSymbol": "key"
+    },
+    {
+      "from": "annotate/src/annotate.ts",
+      "fromSymbol": "worker",
+      "to": "annotate/src/cache.ts",
+      "toSymbol": "set"
+    },
+    {
+      "from": "annotate/src/annotate.ts",
+      "fromSymbol": "worker",
+      "to": "annotate/src/types.ts",
+      "toSymbol": "annotate"
+    },
+    {
+      "from": "annotate/src/annotate.ts",
+      "fromSymbol": "worker",
+      "to": "core/src/util/paths.ts",
+      "toSymbol": "assertInside"
+    },
+    {
+      "from": "annotate/src/config.ts",
+      "fromSymbol": "createAnnotator",
+      "to": "annotate/src/config.ts",
+      "toSymbol": "envKey"
+    },
+    {
+      "from": "annotate/src/config.ts",
+      "fromSymbol": "createAnnotator",
+      "to": "annotate/src/config.ts",
+      "toSymbol": "requireKey"
+    },
+    {
+      "from": "annotate/src/providers/openai-compat.ts",
+      "fromSymbol": "annotate",
+      "to": "annotate/src/prompt.ts",
+      "toSymbol": "buildUserPrompt"
+    },
+    {
+      "from": "annotate/src/providers/openai-compat.ts",
+      "fromSymbol": "annotate",
+      "to": "annotate/src/providers/openai-compat.ts",
+      "toSymbol": "parseAnnotation"
+    },
+    {
+      "from": "annotate/src/providers/openai-compat.ts",
+      "fromSymbol": "parseAnnotation",
+      "to": "annotate/src/providers/openai-compat.ts",
+      "toSymbol": "extractJson"
+    },
+    {
+      "from": "cli/src/index.ts",
+      "fromSymbol": "<module>",
+      "to": "annotate/src/annotate.ts",
+      "toSymbol": "annotateGraph"
+    },
+    {
+      "from": "cli/src/index.ts",
+      "fromSymbol": "<module>",
+      "to": "annotate/src/config.ts",
+      "toSymbol": "createAnnotator"
+    },
+    {
+      "from": "cli/src/index.ts",
+      "fromSymbol": "<module>",
+      "to": "core/src/scan.ts",
+      "toSymbol": "scanRepo"
+    },
+    {
+      "from": "cli/src/index.ts",
+      "fromSymbol": "<module>",
+      "to": "core/src/vault/markdown.ts",
+      "toSymbol": "writeVault"
+    },
+    {
+      "from": "core/src/langs/python.ts",
+      "fromSymbol": "createPythonExtractor",
+      "to": "core/src/langs/python.ts",
+      "toSymbol": "init"
+    },
+    {
+      "from": "core/src/langs/python.ts",
+      "fromSymbol": "extract",
+      "to": "core/src/langs/python.ts",
+      "toSymbol": "walk"
+    },
+    {
+      "from": "core/src/langs/python.ts",
+      "fromSymbol": "walk",
+      "to": "core/src/langs/python.ts",
+      "toSymbol": "addEdge"
+    },
+    {
+      "from": "core/src/langs/python.ts",
+      "fromSymbol": "walk",
+      "to": "core/src/langs/python.ts",
+      "toSymbol": "fromModule"
+    },
+    {
+      "from": "core/src/langs/python.ts",
+      "fromSymbol": "walk",
+      "to": "core/src/langs/python.ts",
+      "toSymbol": "importedModules"
+    },
+    {
+      "from": "core/src/langs/python.ts",
+      "fromSymbol": "walk",
+      "to": "core/src/langs/python.ts",
+      "toSymbol": "resolvePy"
+    },
+    {
+      "from": "core/src/langs/python.ts",
+      "fromSymbol": "walk",
+      "to": "core/src/langs/python.ts",
+      "toSymbol": "walk"
+    },
+    {
+      "from": "core/src/langs/ts-js.ts",
+      "fromSymbol": "extractTsJs",
+      "to": "core/src/langs/ts-js.ts",
+      "toSymbol": "enclosingName"
+    },
+    {
+      "from": "core/src/langs/ts-js.ts",
+      "fromSymbol": "extractTsJs",
+      "to": "core/src/langs/ts-js.ts",
+      "toSymbol": "langOf"
+    },
+    {
+      "from": "core/src/langs/ts-js.ts",
+      "fromSymbol": "extractTsJs",
+      "to": "core/src/langs/ts-js.ts",
+      "toSymbol": "resolveCallTarget"
+    },
+    {
+      "from": "core/src/langs/ts-js.ts",
+      "fromSymbol": "extractTsJs",
+      "to": "core/src/util/paths.ts",
+      "toSymbol": "toId"
+    },
+    {
+      "from": "core/src/langs/ts-js.ts",
+      "fromSymbol": "resolveCallTarget",
+      "to": "core/src/util/paths.ts",
+      "toSymbol": "toId"
+    },
+    {
+      "from": "core/src/scan.ts",
+      "fromSymbol": "scanRepo",
+      "to": "core/src/langs/python.ts",
+      "toSymbol": "createPythonExtractor"
+    },
+    {
+      "from": "core/src/scan.ts",
+      "fromSymbol": "scanRepo",
+      "to": "core/src/langs/python.ts",
+      "toSymbol": "extract"
+    },
+    {
+      "from": "core/src/scan.ts",
+      "fromSymbol": "scanRepo",
+      "to": "core/src/langs/ts-js.ts",
+      "toSymbol": "extractTsJs"
+    },
+    {
+      "from": "core/src/scan.ts",
+      "fromSymbol": "scanRepo",
+      "to": "core/src/scan.ts",
+      "toSymbol": "walk"
+    },
+    {
+      "from": "core/src/scan.ts",
+      "fromSymbol": "scanRepo",
+      "to": "core/src/util/paths.ts",
+      "toSymbol": "assertInside"
+    },
+    {
+      "from": "core/src/scan.ts",
+      "fromSymbol": "scanRepo",
+      "to": "core/src/util/paths.ts",
+      "toSymbol": "toId"
+    },
+    {
+      "from": "core/src/scan.ts",
+      "fromSymbol": "walk",
+      "to": "core/src/scan.ts",
+      "toSymbol": "walk"
+    },
+    {
+      "from": "core/src/vault/markdown.ts",
+      "fromSymbol": "renderNote",
+      "to": "core/src/vault/markdown.ts",
+      "toSymbol": "callsInList"
+    },
+    {
+      "from": "core/src/vault/markdown.ts",
+      "fromSymbol": "renderNote",
+      "to": "core/src/vault/markdown.ts",
+      "toSymbol": "callsOutList"
+    },
+    {
+      "from": "core/src/vault/markdown.ts",
+      "fromSymbol": "renderNote",
+      "to": "core/src/vault/markdown.ts",
+      "toSymbol": "list"
+    },
+    {
+      "from": "core/src/vault/markdown.ts",
+      "fromSymbol": "renderNote",
+      "to": "core/src/vault/markdown.ts",
+      "toSymbol": "yamlList"
+    },
+    {
+      "from": "core/src/vault/markdown.ts",
+      "fromSymbol": "writeVault",
+      "to": "core/src/util/paths.ts",
+      "toSymbol": "assertSafeOutputDir"
+    },
+    {
+      "from": "core/src/vault/markdown.ts",
+      "fromSymbol": "writeVault",
+      "to": "core/src/vault/markdown.ts",
+      "toSymbol": "renderNote"
+    },
+    {
+      "from": "web/src/App.tsx",
+      "fromSymbol": "App",
+      "to": "web/src/App.tsx",
+      "toSymbol": "loadFile"
+    },
+    {
+      "from": "web/src/App.tsx",
+      "fromSymbol": "App",
+      "to": "web/src/App.tsx",
+      "toSymbol": "switchMode"
+    },
+    {
+      "from": "web/src/App.tsx",
+      "fromSymbol": "App",
+      "to": "web/src/App.tsx",
+      "toSymbol": "toggleFlow"
+    },
+    {
+      "from": "web/src/App.tsx",
+      "fromSymbol": "App",
+      "to": "web/src/callgraph.ts",
+      "toSymbol": "buildCallGraph"
+    },
+    {
+      "from": "web/src/App.tsx",
+      "fromSymbol": "App",
+      "to": "web/src/paths.ts",
+      "toSymbol": "buildAdjacency"
+    },
+    {
+      "from": "web/src/App.tsx",
+      "fromSymbol": "App",
+      "to": "web/src/paths.ts",
+      "toSymbol": "reachable"
+    },
+    {
+      "from": "web/src/callgraph.ts",
+      "fromSymbol": "buildCallGraph",
+      "to": "web/src/callgraph.ts",
+      "toSymbol": "ensure"
+    },
+    {
+      "from": "web/src/callgraph.ts",
+      "fromSymbol": "ensure",
+      "to": "web/src/callgraph.ts",
+      "toSymbol": "symId"
+    },
+    {
+      "from": "web/src/Graph.tsx",
+      "fromSymbol": "Graph",
+      "to": "web/src/Graph.tsx",
+      "toSymbol": "nodeState"
+    },
+    {
+      "from": "web/src/Graph.tsx",
+      "fromSymbol": "Graph",
+      "to": "web/src/Graph.tsx",
+      "toSymbol": "resolve"
+    }
+  ]
+}
