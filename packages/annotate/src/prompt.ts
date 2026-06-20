@@ -4,7 +4,7 @@ const MAX_SOURCE_CHARS = 12_000;
 
 export const SYSTEM_PROMPT =
   "Given one source file, describe its role and the data flows it participates in. Be concrete and terse. " +
-  "Never invent dependencies. Respond ONLY with a single JSON object — no prose, no code fences.";
+  "Never invent dependencies. Respond ONLY with a single JSON object. No prose, no code fences.";
 
 export function buildUserPrompt(input: AnnotateInput): string {
   const source =
