@@ -124,6 +124,12 @@ export function App() {
     return active.nodes.reduce((n, node) => n + (connected.has(node.id) ? 0 : 1), 0);
   }, [active]);
 
+  // The writes/reads/auth filters only mean anything once files are annotated.
+  const hasAnnotations = useMemo(
+    () => Boolean(active?.nodes.some((n) => n.annotation)),
+    [active],
+  );
+
   // Flow trace: union the semantic layer (writes/reads/auth) across the selected
   // file + everything it depends on — the full data footprint of the capability.
   const flowTrace = useMemo(() => {
@@ -316,7 +322,7 @@ export function App() {
       }}
     >
       <aside className="sidebar">
-        <h1>code-mapper</h1>
+        <h1>codeflowmap</h1>
 
         {backend ? (
           <div className="scan-panel">
@@ -454,10 +460,17 @@ export function App() {
           <span className="muted">
             Highlight files that:
             {matched !== null && <span className="match-count"> {matched.size} matched</span>}
+            {!hasAnnotations && <span className="muted"> — run Annotate first</span>}
           </span>
           {FLOW_KEYS.map((k) => (
-            <label key={k}>
-              <input type="checkbox" checked={flows.has(k)} onChange={() => toggleFlow(k)} /> {k}
+            <label key={k} className={hasAnnotations ? "" : "disabled"}>
+              <input
+                type="checkbox"
+                checked={flows.has(k)}
+                disabled={!hasAnnotations}
+                onChange={() => toggleFlow(k)}
+              />{" "}
+              {k}
             </label>
           ))}
           {isolatedCount > 0 && (

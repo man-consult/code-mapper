@@ -125,6 +125,7 @@ body {
 }
 
 .flow-filters label { cursor: pointer; }
+.flow-filters label.disabled { opacity: 0.45; cursor: not-allowed; }
 .match-count { color: var(--match); }
 .isolated-toggle { margin-top: 6px; color: var(--muted); }
 
