@@ -36,6 +36,8 @@ Firstly: understanding the code an LLM wrote for me. I pretty soon discovered th
 
 The second is dropping into an unfamiliar repo and tracing how it stitches together, what calls what, where data gets written, which paths run through auth. Slow work, and easy to get wrong when it's not your local playground. This part is all about learning good patterns from people who know what they're doing.
 
+The next challenge was knowing where to start, which I'd been answering with a second tool that worked in conjunction with the graph. So I folded it in, and now it'll generate a guided tour of the codebase to go with the graph.
+
 It's experimental because it was built to be useful to me first, not to be a finished product. If it helps you better understand a codebase the same way, good.
 
 ---
@@ -139,9 +141,10 @@ Env overrides: `CODEMAP_PROVIDER`, `CODEMAP_MODEL`, `CODEMAP_BASE_URL`, `CODEMAP
 | ✅ | Function-level call graph for TS/JS (**Functions** view) | done |
 | ✅ | LLM annotation — provider-agnostic, local-first | done |
 | ✅ | Web UI (Cytoscape): focus, directory grouping, flow-trace | done |
-| 🔜 | Function-level call edges for Python | planned |
+| ✅ | Function-level call edges for Python (resolved through imports) | done |
+| ✅ | Guided tour / repo onboarding (`onboard` + web tour) | done |
 
-> **Early / experimental** — interfaces and output format may change. Python currently contributes import edges + symbols; function-level call edges are TS/JS only.
+> **Early / experimental** — interfaces and output format may change. Function-level call edges now cover both TS/JS and Python; Python calls are resolved through imports (including packages under a source root such as `src/`) and verified against the target file's symbols.
 
 ---
 
@@ -160,3 +163,23 @@ Monorepo (Bun workspaces): `packages/core` (graph extraction) · `packages/annot
 ## License
 
 [MIT](LICENSE) © 2026 Brian Mangano
+
+---
+
+## Changelog
+
+### 0.1.2 — unreleased
+
+Folds in a guided reading order for dropping into an unfamiliar repo, built on the same dependency graph asked a different question. Python also gains function-level call edges.
+
+- **Guided tour / repo onboarding.** `codemap onboard <dir>` writes a `TOUR.md` reading order, and the web UI gains a guided-tour panel that steps through the repo stop by stop. The order is derived from the import graph — cycles folded, dependencies introduced before the files that use them — with a **foundations-first ↔ entry-points-first** toggle for two ways to tell the story.
+- **Python function-level call edges.** The **Functions** view now works for Python. Calls are resolved through imports and verified against the target file's declared symbols, so edges stay exact rather than guessed.
+- **Python source-root import resolution.** Absolute imports for packages living under a source root (e.g. `backend/src/hipper/…`) now resolve by suffix-matching the scanned file set — fixing both import and call edges for "src layout" projects.
+
+**NOTE** Repos analysed before 0.1.2 need a fresh scan to surface the Guided Tour and Python call edges as both come from static analysis. A re-scan rewrites graph.json and clears existing summaries, so re-run annotate afterwards to restore them (cached by file content, so it's cheap).
+
+### 0.1.1
+- Packaging and security hardening: the local server is loopback-only with a Host/Origin guard against DNS-rebinding and cross-origin requests.
+
+### 0.1.0
+- Initial release: deterministic import graph + function-level call graph (TS/JS) via the TypeScript compiler, tree-sitter Python extractor (imports + symbols), provider-agnostic LLM annotation (local-first), Cytoscape web UI, and Obsidian-linkable vault.
