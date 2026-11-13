@@ -3,7 +3,7 @@ import path from "node:path";
 /**
  * Defense-in-depth: assert that `target` resolves to a location inside `root`.
  * Throws on directory-traversal attempts. Returns the resolved absolute path.
- * (Corridor guardrail: constrain all reads within the user-provided target dir.)
+ * (Security guardrail: constrain all reads within the user-provided target dir.)
  */
 export function assertInside(root: string, target: string): string {
   const r = path.resolve(root);
@@ -29,7 +29,7 @@ const RESTRICTED = new Set([
 /**
  * Refuse to write the vault into the filesystem root, a known system directory,
  * or the user's home directory itself.
- * (Corridor guardrail: verify output destination is not a restricted directory.)
+ * (Security guardrail: verify output destination is not a restricted directory.)
  */
 export function assertSafeOutputDir(dir: string): string {
   const resolved = path.resolve(dir);
