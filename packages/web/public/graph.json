@@ -1,5 +1,5 @@
 {
-  "root": "/Volumes/DeveloperDrive/Developer/code-mapper/packages",
+  "root": "code-mapper/packages",
   "nodes": [
     {
       "id": "annotate/src/annotate.ts",

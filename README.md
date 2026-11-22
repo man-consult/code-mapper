@@ -17,7 +17,7 @@
 
 <!-- Swap this for a real demo gif/png whenever you grab one (scan → graph → focus → annotate). -->
 <p align="center">
-  <img src="assets/hero.svg" alt="codeflowmap: focus a file to see its callers (left), dependencies (right), and its writes / reads / auth" width="860">
+  <img src="https://raw.githubusercontent.com/man-consult/code-mapper/main/assets/hero.svg" alt="codeflowmap: focus a file to see its callers (left), dependencies (right), and its writes / reads / auth" width="860">
 </p>
 
 ```bash
@@ -47,10 +47,11 @@ It's experimental because it was built to be useful to me first, not to be a fin
 |  |  |
 |---|---|
 | 🔗 **Exact dependency graph** | File-level imports resolved by the TypeScript compiler (aliases, barrels, index files) — not guessed. |
-| 🔁 **Function-level call graph** | Who calls what, symbol to symbol. Toggle between the **Files** and **Functions** views. |
+| 🔁 **Function-level call graph** | Who calls what, symbol to symbol, for TS/JS and Python. Toggle between the **Files** and **Functions** views. |
 | 🧭 **Focus any node** | Click (or search) a file/function → a clean, directional view: callers on the left, dependencies on the right. Big neighbourhoods collapse by directory. |
 | 🧠 **Semantic layer (optional)** | An LLM annotates each file: a summary plus **writes / reads / config / auth / flows** — the meaning the graph can't infer. |
 | 🧾 **Flow-trace** | Aggregates the data footprint across a whole capability: *"this route writes these tables, reads these, is gated by this auth."* |
+| 🧭 **Guided tour** *(new in 0.1.2)* | A suggested reading order for an unfamiliar repo, built from the import graph: foundations first, or entry points first. Step through it in the UI or read `TOUR.md`. |
 | 📓 **Obsidian-linkable vault** | One `.md` per file with `[[wikilinks]]` that are real edges — open the output folder as an Obsidian vault for free. |
 
 ---
@@ -66,6 +67,7 @@ Then, in the browser:
 1. **Scan** — click **Browse…** to pick a folder (or type/paste a path; `~` works), then **Scan**. The import graph, call graph, and Obsidian vault are written to `<repo>/.codemap`.
 2. **Annotate** *(optional)* — add the semantic layer. Leave the key blank to run locally via **Ollama**, or paste an **API key** + base URL for any OpenAI-compatible provider (Mistral, OpenAI, …).
 3. **Explore** — toggle **Files / Functions**, click a node to focus its neighbourhood and highlight up/downstream paths, search to jump anywhere, and filter by data-flow type.
+4. **Take the tour** — open the **guided tour** panel to step through the repo in reading order, and flip between **foundations-first** and **entry-points-first**.
 
 Open the same `.codemap/` folder as an Obsidian vault for the graph view + backlinks.
 Add `.codemap/` to your `.gitignore` if you don't want it committed.
@@ -105,7 +107,11 @@ bun run codemap scan ./repo -o .codemap            # graph + vault, deterministi
 ollama pull qwen2.5-coder:7b                        # one-time, ~4.7 GB
 bun run codemap annotate -o .codemap               # local Ollama (default)
 bun run codemap annotate -o .codemap -p mistral    # Mistral API (needs CODEMAP_API_KEY)
+bun run codemap onboard ./repo -o .codemap         # guided reading order → .codemap/TOUR.md
+bun run codemap onboard ./repo --order entrypoints # …or start from the entry points
 ```
+
+From npm, swap `bun run codemap` for `bunx codeflowmap` (e.g. `bunx codeflowmap onboard ./repo`).
 
 Annotations are cached by file-content hash under `.codemap/.cache`, so re-runs only re-send changed files.
 
@@ -156,7 +162,7 @@ bun install
 bun run codemap serve          # runs from source; builds the UI on first run
 ```
 
-Monorepo (Bun workspaces): `packages/core` (graph extraction) · `packages/annotate` (LLM layer) · `packages/cli` (the `serve` command) · `packages/web` (Cytoscape UI). `bun run build:pkg` assembles the publishable npm package into `pkg/`.
+Monorepo (Bun workspaces): `packages/core` (graph extraction) · `packages/annotate` (LLM layer) · `packages/cli` (`serve`, `scan`, `annotate`, `onboard`) · `packages/web` (Cytoscape UI). `bun run build:pkg` assembles the publishable npm package into `pkg/`.
 
 ---
 
@@ -174,9 +180,8 @@ Folds in a guided reading order for dropping into an unfamiliar repo, built on t
 
 - **Guided tour / repo onboarding.** `codemap onboard <dir>` writes a `TOUR.md` reading order, and the web UI gains a guided-tour panel that steps through the repo stop by stop. The order is derived from the import graph — cycles folded, dependencies introduced before the files that use them — with a **foundations-first ↔ entry-points-first** toggle for two ways to tell the story.
 - **Python function-level call edges.** The **Functions** view now works for Python. Calls are resolved through imports and verified against the target file's declared symbols, so edges stay exact rather than guessed.
-- **Python source-root import resolution.** Absolute imports for packages living under a source root (e.g. `backend/src/hipper/…`) now resolve by suffix-matching the scanned file set — fixing both import and call edges for "src layout" projects.
-
-- **Dependency security refresh.** Runtime deps updated to patched releases (ts-morph's minimatch/brace-expansion), and `zod` dropped in favour of a small built-in validator for model output; `bun audit` is clean.
+- **Python source-root import resolution.** Absolute imports for packages living under a source root (e.g. `backend/src/myapp/…`) now resolve by suffix-matching the scanned file set — fixing both import and call edges for "src layout" projects.
+- **Housekeeping.** Fixed a few bugs, removed a couple of dependencies (`zod` is replaced by a small built-in check on model output, and `@types/cytoscape` is no longer needed), and bumped a few others to clear some security advisories. `bun audit` is now clean.
 
 **NOTE** Repos analysed before 0.1.2 need a fresh scan to surface the Guided Tour and Python call edges as both come from static analysis. A re-scan rewrites graph.json and clears existing summaries, so re-run annotate afterwards to restore them (cached by file content, so it's cheap).
 
