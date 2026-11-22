@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import cytoscape, { type Core, type ElementDefinition, type Stylesheet } from "cytoscape";
+import cytoscape, { type Core, type ElementDefinition, type StylesheetJsonBlock } from "cytoscape";
 import fcose from "cytoscape-fcose";
 import type { CodeGraph } from "./types.ts";
 
@@ -21,7 +21,7 @@ const LANG_COLOR: Record<string, string> = {
   python: "#3b7daf",
 };
 
-const STYLE: Stylesheet[] = [
+const STYLE: StylesheetJsonBlock[] = [
   {
     selector: "node",
     style: {
@@ -437,7 +437,9 @@ export function Graph(props: GraphProps) {
           }
         });
       } else if (matched) {
-        cy.nodes().forEach((nd) => nd.addClass(matched.has(nd.id()) ? "match" : "dim"));
+        cy.nodes().forEach((nd) => {
+          nd.addClass(matched.has(nd.id()) ? "match" : "dim");
+        });
         cy.edges().addClass("dim");
       }
     });

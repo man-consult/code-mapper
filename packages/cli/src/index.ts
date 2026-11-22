@@ -1,7 +1,8 @@
 #!/usr/bin/env bun
+import fs from "node:fs";
 import path from "node:path";
 import { Command } from "commander";
-import { scanRepo, writeVault } from "@codemap/core";
+import { buildCurriculum, scanRepo, writeTour, writeVault, type CodeGraph } from "@codemap/core";
 import { annotateGraph, createAnnotator, type ProviderName } from "@codemap/annotate";
 import { serve } from "./serve.ts";
 
@@ -53,6 +54,44 @@ program
       );
     },
   );
+
+program
+  .command("onboard")
+  .description("Build a guided reading order (TOUR.md) — where to start and what to read next")
+  .argument("<dir>", "target directory to onboard into")
+  .option("-o, --out <dir>", "vault directory", ".codemap")
+  .option("--order <mode>", "reading order: foundations | entrypoints", "foundations")
+  .action(async (dir: string, options: { out: string; order: string }) => {
+    const order = options.order === "entrypoints" ? "entrypoints" : "foundations";
+    const out = path.isAbsolute(options.out) ? options.out : path.join(path.resolve(dir), options.out);
+    const graphJson = path.join(out, "graph.json");
+
+    // Reuse an existing graph (keeps any annotations); otherwise scan fresh.
+    let graph: CodeGraph;
+    if (fs.existsSync(graphJson)) {
+      graph = JSON.parse(fs.readFileSync(graphJson, "utf8")) as CodeGraph;
+      console.log(`Using existing graph: ${graphJson}`);
+    } else {
+      graph = await scanRepo(dir, { outDirName: path.basename(out) });
+      writeVault(graph, out);
+      console.log(`Scanned ${graph.nodes.length} files, ${graph.edges.length} import edges.`);
+    }
+
+    const cur = buildCurriculum(graph, { order });
+    const { file, stops } = writeTour(cur, out);
+    console.log(
+      `\nTour (${order} first): ${stops} stops across ${cur.chapters.length} chapters → ${file}`,
+    );
+    for (const ch of cur.chapters) {
+      console.log(`  • ${ch.title} (${ch.stops.length})`);
+    }
+    if (cur.cycles) console.log(`  ${cur.cycles} import cycle(s) folded.`);
+    if (cur.excluded.total) {
+      console.log(
+        `  skipped ${cur.excluded.total} files (${cur.excluded.tests} test, ${cur.excluded.generated} generated, ${cur.excluded.trivial} inert).`,
+      );
+    }
+  });
 
 program
   .command("serve")

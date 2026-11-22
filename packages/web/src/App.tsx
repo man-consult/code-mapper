@@ -2,7 +2,15 @@ import { useEffect, useMemo, useState } from "react";
 import { Graph } from "./Graph.tsx";
 import { buildCallGraph } from "./callgraph.ts";
 import { buildAdjacency, reachable } from "./paths.ts";
-import type { CodeGraph, FlowKey, GraphNode, ViewMode } from "./types.ts";
+import type {
+  CodeGraph,
+  Curriculum,
+  CurriculumStop,
+  FlowKey,
+  GraphNode,
+  ReadingOrder,
+  ViewMode,
+} from "./types.ts";
 
 const FLOW_KEYS: FlowKey[] = ["writes", "reads", "auth"];
 
@@ -45,6 +53,13 @@ export function App() {
   const [annModel, setAnnModel] = useState("");
   const [annotating, setAnnotating] = useState(false);
   const [annMsg, setAnnMsg] = useState<string | null>(null);
+
+  // Guided tour (repo onboarding) — computed server-side from the import graph.
+  const [tour, setTour] = useState<Curriculum | null>(null);
+  const [tourStep, setTourStep] = useState(-1);
+  const [tourMsg, setTourMsg] = useState<string | null>(null);
+  const [buildingTour, setBuildingTour] = useState(false);
+  const [tourOrder, setTourOrder] = useState<ReadingOrder>("foundations");
 
   // Best-effort auto-load of a graph.json served alongside the app.
   useEffect(() => {
@@ -224,6 +239,9 @@ export function App() {
       setSelected(null);
       setMode("files");
       setAnnMsg(null);
+      setTour(null);
+      setTourStep(-1);
+      setTourMsg(null);
     } catch (e) {
       setScanMsg((e as Error).message);
     } finally {
@@ -297,6 +315,50 @@ export function App() {
     } finally {
       setAnnotating(false);
     }
+  }
+
+  // Flattened tour stops in reading order (stop.order is 1-based and global).
+  const tourStops = useMemo(
+    () => (tour ? tour.chapters.flatMap((c) => c.stops) : []),
+    [tour],
+  );
+  const activeStop = tourStep >= 0 ? tourStops[tourStep] ?? null : null;
+
+  async function buildTour(order: ReadingOrder = tourOrder) {
+    setTourOrder(order);
+    setBuildingTour(true);
+    setTourMsg("Computing reading order…");
+    try {
+      const res = await fetch(`/api/curriculum?order=${order}`);
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? "Could not build the tour.");
+      const t = data as Curriculum;
+      setTour(t);
+      setTourMsg(null);
+      goToStep(0, t);
+    } catch (e) {
+      setTour(null);
+      setTourMsg((e as Error).message);
+    } finally {
+      setBuildingTour(false);
+    }
+  }
+
+  // Switch reading direction: re-fetch if a tour is already open, else just arm it.
+  function setOrder(order: ReadingOrder) {
+    if (order === tourOrder) return;
+    setTourOrder(order);
+    if (tour) void buildTour(order);
+  }
+
+  function goToStep(i: number, t: Curriculum | null = tour) {
+    if (!t) return;
+    const flat = t.chapters.flatMap((c) => c.stops);
+    if (flat.length === 0) return;
+    const clamped = Math.max(0, Math.min(i, flat.length - 1));
+    setTourStep(clamped);
+    setMode("files");
+    setSelected(flat[clamped]!.id);
   }
 
   function toggleFlow(k: FlowKey) {
@@ -424,6 +486,64 @@ export function App() {
             Functions
           </button>
         </div>
+
+        {active && (
+          <div className="tour-panel">
+            {!backend ? (
+              <p className="muted">
+                Run <code>codemap serve</code> to build a guided tour.
+              </p>
+            ) : (
+              <>
+                <div className="tour-section-head">
+                  <span className="muted">Guided tour</span>
+                  <span className="new-badge">NEW</span>
+                </div>
+                <div className="tour-order">
+                  <button
+                    className={tourOrder === "foundations" ? "on" : ""}
+                    title="Building blocks first, then what's built on them"
+                    onClick={() => setOrder("foundations")}
+                  >
+                    Foundations
+                  </button>
+                  <button
+                    className={tourOrder === "entrypoints" ? "on" : ""}
+                    title="Entry points first, descending into detail"
+                    onClick={() => setOrder("entrypoints")}
+                  >
+                    Entry points
+                  </button>
+                </div>
+                {tour ? (
+                  <Tour
+                    tour={tour}
+                    stops={tourStops}
+                    step={tourStep}
+                    activeStop={activeStop}
+                    onStep={(i) => goToStep(i)}
+                    onClose={() => {
+                      setTour(null);
+                      setTourStep(-1);
+                    }}
+                  />
+                ) : (
+                  <>
+                    <button className="tour-btn" disabled={buildingTour} onClick={() => buildTour()}>
+                      {buildingTour ? "Building…" : "🧭 Build guided tour"}
+                    </button>
+                    <p className="muted ann-note">
+                      {tourOrder === "entrypoints"
+                        ? "Start at the entry points and follow imports down into detail."
+                        : "Start at the building blocks and work up to what uses them."}
+                    </p>
+                    {tourMsg && <p className="muted ann-msg">{tourMsg}</p>}
+                  </>
+                )}
+              </>
+            )}
+          </div>
+        )}
 
         <input
           className="search"
@@ -582,6 +702,85 @@ export function App() {
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+function Tour(props: {
+  tour: Curriculum;
+  stops: CurriculumStop[];
+  step: number;
+  activeStop: CurriculumStop | null;
+  onStep: (i: number) => void;
+  onClose: () => void;
+}) {
+  const { tour, stops, step, activeStop, onClose, onStep } = props;
+  const base = (id: string) => id.split("/").pop() ?? id;
+
+  return (
+    <div className="tour">
+      <div className="tour-head">
+        <span className="muted">
+          {tour.order === "entrypoints" ? "Entry points first" : "Foundations first"} ·{" "}
+          {tour.totalStops} stops
+          {tour.cycles > 0 && ` · ${tour.cycles} cycle${tour.cycles === 1 ? "" : "s"}`}
+        </span>
+        <button className="tour-close" title="Close tour" onClick={onClose}>
+          ✕
+        </button>
+      </div>
+
+      {activeStop && (
+        <div className="tour-stop">
+          <div className="tour-nav">
+            <button disabled={step <= 0} onClick={() => onStep(step - 1)}>
+              ‹ Prev
+            </button>
+            <span className="muted">
+              {step + 1} / {stops.length}
+            </span>
+            <button disabled={step >= stops.length - 1} onClick={() => onStep(step + 1)}>
+              Next ›
+            </button>
+          </div>
+          <h3 className="tour-title" title={activeStop.id}>
+            {activeStop.order}. {base(activeStop.id)}
+          </h3>
+          <span className={`tour-role role-${activeStop.role}`}>{activeStop.role}</span>
+          <p className="tour-why">{activeStop.why}</p>
+          {activeStop.summary && <p className="tour-summary">{activeStop.summary}</p>}
+          <p className="muted tour-deps">
+            {activeStop.seenDeps.length > 0 &&
+              `builds on ${activeStop.seenDeps.length} you've seen`}
+            {activeStop.seenDeps.length > 0 && activeStop.newDeps.length > 0 && " · "}
+            {activeStop.newDeps.length > 0 && `pulls in ${activeStop.newDeps.length} coming up`}
+            {activeStop.seenDeps.length === 0 && activeStop.newDeps.length === 0 && "no internal deps"}
+          </p>
+        </div>
+      )}
+
+      <div className="tour-toc">
+        {tour.chapters.map((ch) => (
+          <details key={ch.title} open={ch.stops.some((s) => s.order - 1 === step)}>
+            <summary>
+              {ch.title} <span className="muted">({ch.stops.length})</span>
+            </summary>
+            <ul>
+              {ch.stops.map((s) => (
+                <li key={s.id}>
+                  <button
+                    className={s.order - 1 === step ? "on" : ""}
+                    title={s.id}
+                    onClick={() => onStep(s.order - 1)}
+                  >
+                    <span className="tour-toc-n">{s.order}</span> {base(s.id)}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </details>
+        ))}
+      </div>
     </div>
   );
 }

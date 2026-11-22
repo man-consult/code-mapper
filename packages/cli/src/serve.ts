@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { scanRepo, writeVault } from "@codemap/core";
+import { buildCurriculum, scanRepo, writeVault, type CodeGraph } from "@codemap/core";
 import { annotateGraph, OpenAICompatAnnotator } from "@codemap/annotate";
 
 /** Expand a leading ~ to the user's home directory before resolving. */
@@ -118,6 +118,9 @@ export async function serve(vaultInput: string | undefined, opts: ServeOptions =
       if (pathname === "/api/ls") {
         return handleLs(new URL(req.url).searchParams.get("path"));
       }
+      if (pathname === "/api/curriculum") {
+        return handleCurriculum(currentVault, new URL(req.url).searchParams.get("order"));
+      }
       if (pathname === "/api/scan" && req.method === "POST") {
         return withVaultLock(async () => {
           const { response, vault } = await handleScan(req);
@@ -175,6 +178,27 @@ function handleLs(query: string | null): Response {
 
   const parent = path.dirname(dir);
   return Response.json({ path: dir, parent: parent === dir ? null : parent, entries });
+}
+
+/**
+ * Compute the guided reading order from the current vault's graph.json and
+ * return it as JSON. Read-only: no user-supplied path (uses the already-trusted
+ * currentVault), so there's nothing to traverse. The CLI `onboard` command is
+ * the path that writes TOUR.md to disk.
+ */
+function handleCurriculum(currentVault: string | null, orderParam: string | null): Response {
+  if (!currentVault) return Response.json({ error: "Scan a directory first." }, { status: 400 });
+  const graphJson = path.join(currentVault, "graph.json");
+  if (!fs.existsSync(graphJson)) {
+    return Response.json({ error: "No graph.json in the current vault." }, { status: 404 });
+  }
+  const order = orderParam === "entrypoints" ? "entrypoints" : "foundations";
+  try {
+    const graph = JSON.parse(fs.readFileSync(graphJson, "utf8")) as CodeGraph;
+    return Response.json(buildCurriculum(graph, { order }));
+  } catch (err) {
+    return Response.json({ error: (err as Error).message }, { status: 500 });
+  }
 }
 
 async function handleScan(req: Request): Promise<{ response: Response; vault?: string }> {

@@ -13,12 +13,12 @@ import path from "node:path";
 
 const root = path.resolve(import.meta.dir, "..");
 const pkg = path.join(root, "pkg");
-const VERSION = "0.1.1";
+const VERSION = "0.1.2";
 
 // Externalised: imported at runtime, kept out of the bundle (declared as deps).
 // tree-sitter-python is resolved via require.resolve for its .wasm, so it is a
 // dependency but never an import to externalise.
-const EXTERNALS = ["ts-morph", "web-tree-sitter", "zod", "commander"];
+const EXTERNALS = ["ts-morph", "web-tree-sitter", "commander"];
 
 fs.rmSync(pkg, { recursive: true, force: true });
 fs.mkdirSync(path.join(pkg, "bin"), { recursive: true });
@@ -58,8 +58,7 @@ fs.writeFileSync(
         "ts-morph": "^28.0.0",
         "web-tree-sitter": "^0.26.9",
         "tree-sitter-python": "^0.25.0",
-        zod: "^4.4.3",
-        commander: "^15.0.0",
+        commander: "^15.1.0",
       },
       keywords: [
         "code",

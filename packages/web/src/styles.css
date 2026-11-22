@@ -341,3 +341,112 @@ code {
   stroke: var(--bg);
   stroke-width: 3px;
 }
+
+/* --- Guided tour (repo onboarding) --- */
+.tour-panel { margin: 14px 0; }
+.tour-btn {
+  width: 100%;
+  margin-top: 4px;
+  padding: 8px 10px;
+  background: var(--bg);
+  color: var(--text);
+  border: 1px solid var(--accent);
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+}
+.tour-btn:hover { background: var(--panel); }
+.tour-btn:disabled { opacity: 0.5; cursor: progress; }
+
+.tour {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg);
+  padding: 10px;
+}
+.tour-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+.tour-close {
+  background: none; border: none; color: var(--muted);
+  cursor: pointer; font-size: 13px; padding: 0 2px;
+}
+.tour-close:hover { color: var(--text); }
+
+.tour-nav {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 6px; margin-bottom: 8px;
+}
+.tour-nav button {
+  background: var(--panel); color: var(--text);
+  border: 1px solid var(--border); border-radius: 6px;
+  padding: 4px 10px; cursor: pointer; font-size: 12px;
+}
+.tour-nav button:hover:not(:disabled) { border-color: var(--accent); }
+.tour-nav button:disabled { opacity: 0.4; cursor: default; }
+
+.tour-title { font-size: 13px; margin: 2px 0 6px; word-break: break-all; }
+.tour-role {
+  display: inline-block; font-size: 11px; text-transform: uppercase;
+  letter-spacing: 0.04em; padding: 1px 7px; border-radius: 999px;
+  border: 1px solid var(--border); color: var(--muted);
+}
+.tour-role.role-foundation { color: var(--down); border-color: var(--down); }
+.tour-role.role-hub { color: var(--accent); border-color: var(--accent); }
+.tour-role.role-entrypoint { color: var(--up); border-color: var(--up); }
+.tour-role.role-core { color: var(--match); border-color: var(--match); }
+.tour-why { font-size: 12.5px; line-height: 1.5; margin: 8px 0 4px; }
+.tour-summary { font-size: 12.5px; line-height: 1.5; color: var(--muted); margin: 4px 0; }
+.tour-deps { font-size: 12px; margin: 4px 0 2px; }
+
+.tour-toc { margin-top: 10px; border-top: 1px solid var(--border); padding-top: 8px; }
+.tour-toc details { margin-bottom: 2px; }
+.tour-toc summary { cursor: pointer; font-size: 12.5px; padding: 2px 0; }
+.tour-toc ul { list-style: none; margin: 2px 0 6px; padding: 0 0 0 6px; }
+.tour-toc li button {
+  display: flex; gap: 6px; align-items: baseline; width: 100%;
+  background: none; border: none; color: var(--text);
+  text-align: left; cursor: pointer; font-size: 12px;
+  padding: 2px 4px; border-radius: 4px; word-break: break-all;
+}
+.tour-toc li button:hover { background: var(--panel); }
+.tour-toc li button.on { background: var(--panel); color: var(--accent); }
+.tour-toc-n { color: var(--muted); font-variant-numeric: tabular-nums; min-width: 18px; }
+
+.tour-order {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+.tour-order button {
+  flex: 1;
+  padding: 5px 8px;
+  background: var(--bg);
+  color: var(--muted);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
+}
+.tour-order button:hover { border-color: var(--accent); }
+.tour-order button.on { background: var(--panel); color: var(--accent); border-color: var(--accent); }
+
+.tour-section-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+.new-badge {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 1px 6px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: #1a1205;
+}

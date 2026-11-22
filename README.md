@@ -168,13 +168,15 @@ Monorepo (Bun workspaces): `packages/core` (graph extraction) · `packages/annot
 
 ## Changelog
 
-### 0.1.2 — unreleased
+### 0.1.2
 
 Folds in a guided reading order for dropping into an unfamiliar repo, built on the same dependency graph asked a different question. Python also gains function-level call edges.
 
 - **Guided tour / repo onboarding.** `codemap onboard <dir>` writes a `TOUR.md` reading order, and the web UI gains a guided-tour panel that steps through the repo stop by stop. The order is derived from the import graph — cycles folded, dependencies introduced before the files that use them — with a **foundations-first ↔ entry-points-first** toggle for two ways to tell the story.
 - **Python function-level call edges.** The **Functions** view now works for Python. Calls are resolved through imports and verified against the target file's declared symbols, so edges stay exact rather than guessed.
 - **Python source-root import resolution.** Absolute imports for packages living under a source root (e.g. `backend/src/hipper/…`) now resolve by suffix-matching the scanned file set — fixing both import and call edges for "src layout" projects.
+
+- **Dependency security refresh.** Runtime deps updated to patched releases (ts-morph's minimatch/brace-expansion), and `zod` dropped in favour of a small built-in validator for model output; `bun audit` is clean.
 
 **NOTE** Repos analysed before 0.1.2 need a fresh scan to surface the Guided Tour and Python call edges as both come from static analysis. A re-scan rewrites graph.json and clears existing summaries, so re-run annotate afterwards to restore them (cached by file content, so it's cheap).
 

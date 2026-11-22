@@ -1,5 +1,5 @@
 import type { Annotation } from "@codemap/core";
-import { AnnotationSchema, type AnnotateInput, type Annotator } from "../types.ts";
+import { validateAnnotation, type AnnotateInput, type Annotator } from "../types.ts";
 import { buildUserPrompt, SYSTEM_PROMPT } from "../prompt.ts";
 
 export interface OpenAICompatConfig {
@@ -60,7 +60,7 @@ export class OpenAICompatAnnotator implements Annotator {
 }
 
 export function parseAnnotation(content: string): Annotation {
-  return AnnotationSchema.parse(extractJson(content));
+  return validateAnnotation(extractJson(content));
 }
 
 function extractJson(content: string): unknown {

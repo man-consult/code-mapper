@@ -39,12 +39,23 @@ export async function scanRepo(rootInput: string, opts: ScanOptions = {}): Promi
   if (pyFiles.length) {
     const pyIds = new Set(pyFiles.map((f) => toId(root, f)));
     const python = await createPythonExtractor();
+    const declaredByFile = new Map<string, Set<string>>();
+    const pendingCalls: { from: string; fromSymbol: string; to: string; toSymbol: string }[] = [];
     for (const f of pyFiles) {
       const id = toId(root, f);
       const content = fs.readFileSync(assertInside(root, f), "utf8");
-      const { symbols, edges: e } = python.extract(id, content, pyIds);
+      const { symbols, edges: e, calls: c } = python.extract(id, content, pyIds);
       nodes.push({ id, path: id, language: "python", symbols });
       edges.push(...e);
+      declaredByFile.set(id, new Set(symbols.map((s) => s.name)));
+      for (const call of c) pendingCalls.push({ from: id, ...call });
+    }
+    // Keep only calls whose target symbol is actually declared (module-level) in
+    // the target file — drops attribute calls onto non-functions and the like.
+    for (const call of pendingCalls) {
+      if (declaredByFile.get(call.to)?.has(call.toSymbol)) {
+        calls.push({ from: call.from, fromSymbol: call.fromSymbol, to: call.to, toSymbol: call.toSymbol });
+      }
     }
   }
 

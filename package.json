@@ -16,7 +16,9 @@
     "typescript",
     "python"
   ],
-  "workspaces": ["packages/*"],
+  "workspaces": [
+    "packages/*"
+  ],
   "scripts": {
     "codemap": "bun packages/cli/src/index.ts",
     "build:web": "vite build packages/web",
@@ -24,6 +26,6 @@
     "smoke": "bun packages/cli/src/index.ts scan packages/core/src -o .codemap"
   },
   "devDependencies": {
-    "@types/bun": "^1.3.14"
+    "@types/bun": "^1.4.5"
   }
 }

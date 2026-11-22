@@ -7,7 +7,6 @@
     ".": "./src/index.ts"
   },
   "dependencies": {
-    "@codemap/core": "workspace:*",
-    "zod": "^4.4.3"
+    "@codemap/core": "workspace:*"
   }
 }

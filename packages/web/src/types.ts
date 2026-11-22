@@ -37,3 +37,38 @@ export interface CodeGraph {
 
 export type FlowKey = "writes" | "reads" | "auth";
 export type ViewMode = "files" | "functions";
+
+export type StopRole = "entrypoint" | "hub" | "foundation" | "leaf" | "core";
+
+export interface CurriculumStop {
+  id: string;
+  order: number;
+  role: StopRole;
+  dependedOnBy: number;
+  dependsOn: number;
+  seenDeps: string[];
+  newDeps: string[];
+  cluster: string[];
+  symbols: string[];
+  summary?: string;
+  why: string;
+}
+
+export interface CurriculumChapter {
+  title: string;
+  kind: "spine" | "module";
+  blurb: string;
+  stops: CurriculumStop[];
+}
+
+export type ReadingOrder = "foundations" | "entrypoints";
+
+export interface Curriculum {
+  root: string;
+  order: ReadingOrder;
+  chapters: CurriculumChapter[];
+  totalStops: number;
+  totalFiles: number;
+  excluded: { tests: number; generated: number; trivial: number; total: number };
+  cycles: number;
+}
